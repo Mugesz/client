@@ -5,9 +5,33 @@ import { Link } from 'react-router-dom';
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handleSubmit = async e => {
     e.preventDefault();
+    // Reset errors
+    setEmailError('');
+    setPasswordError('');
+
+    // Email validation
+    if (!email) {
+      setEmailError('Email is required');
+      return;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Invalid email address');
+      return;
+    }
+
+    // Password validation
+    if (!password) {
+      setPasswordError('Password is required');
+      return;
+    } else if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters long');
+      return;
+    }
+
     try {
       await axios.post('http://localhost:5000/register', { email, password });
       alert("Success! User registered successfully.");
@@ -35,6 +59,7 @@ const Signup = () => {
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                     />
+                    <div className="text-danger">{emailError}</div>
                   </div>
                   <div className="mb-3">
                     <input
@@ -44,6 +69,7 @@ const Signup = () => {
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                     />
+                    <div className="text-danger">{passwordError}</div>
                   </div>
                   <button type="submit" className="btn btn-primary">Signup</button>
                 </form>

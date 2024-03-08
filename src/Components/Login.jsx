@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,8 +18,28 @@ const Login = () => {
     }
   }, [navigate]);
 
+  const validateForm = () => {
+    let isValid = true;
+    if (!email) {
+      setEmailError("Please enter your email");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
+    if (!password) {
+      setPasswordError("Please enter your password");
+      isValid = false;
+    } else {
+      setPasswordError("");
+    }
+    return isValid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     try {
       setLoading(true);
       const response = await axios.post("http://localhost:5000/login", {
@@ -62,6 +84,9 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
+                    {emailError && (
+                      <p className="text-danger">{emailError}</p>
+                    )}
                   </div>
                   <div className="mb-3">
                     <input
@@ -71,6 +96,9 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
+                    {passwordError && (
+                      <p className="text-danger">{passwordError}</p>
+                    )}
                   </div>
                   <button
                     type="submit"

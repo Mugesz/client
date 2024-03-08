@@ -5,8 +5,8 @@ import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 
 const AddUserForm = () => {
-  const navigate = useNavigate()
-  const [loading,setLoading] = useState(false)
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -41,6 +41,15 @@ const AddUserForm = () => {
       if (values.designation === "") {
         errors.designation = "Please enter designation";
       }
+      if (values.gender === "select") {
+        errors.gender = "Please choose gender";
+      }
+      if (values.course === "") {
+        errors.course = "Please choose course";
+      }
+      if (values.image === "") {
+        errors.image = "Please insert Image";
+      }
 
       return errors;
     },
@@ -62,7 +71,7 @@ const AddUserForm = () => {
 
   return (
     <>
-    <Header/>
+      <Header />
       <div className="container margin-top">
         <h3 className="text-center mt-5">Add User</h3>
         <div className="  shadow-lg p-4 rounded">
@@ -176,7 +185,7 @@ const AddUserForm = () => {
                 <span className="text-danger">{formik.errors.designation}</span>
               </div>
               <div className="col-lg-4">
-                <label>Qualification</label>
+                <label>course</label>
                 <div className="form-check">
                   <input
                     type="checkbox"
@@ -223,7 +232,7 @@ const AddUserForm = () => {
               </div>
 
               <div className="col-lg-4">
-                <label htmlFor="image">image</label>
+                <label htmlFor="image">Image</label>
                 <input
                   type="file"
                   className="form-control"
@@ -233,14 +242,9 @@ const AddUserForm = () => {
                 <span className="text-danger">{formik.errors.image}</span>
               </div>
               <div className="col-lg-12 mt-5">
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  
-                >
+                <button type="submit" className="btn btn-primary">
                   {loading ? "Loading..." : "Submit"}
                 </button>
-
               </div>
             </div>
           </form>

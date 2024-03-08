@@ -30,13 +30,14 @@ const ViewAllDatas = () => {
   };
 
   const filteredUsers = users.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  item.name && item.name.toLowerCase().includes(search.toLowerCase())
+);
+
 
   return (
     <div className="container-fluid ">
       <div className="d-sm-flex align-items-center justify-content-between mb-4 mr-5">
-        <h1 className="h3 mb-2 text-black mt-2 ml-3">Orders Table </h1>
+        <h1 className="h3 mb-2 text-black mt-2 ml-3">Users Table </h1>
         <Link
           to="/adduser"
           className="d-none mt-2 d-sm-inline-block btn btn-sm btn-primary shadow-sm"

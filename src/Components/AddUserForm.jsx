@@ -1,12 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import axios from "axios";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { app, storage } from "../config/firebase";
 
 const AddUserForm = () => {
-  const navigate = useNavigate();
+  const [imageFile, setImageFile] = useState(null);
+  const [imageFileUrl, setImageFileUrl] = useState(null);
+  const [uploadCompleted, setUploadCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const HandleImage = async (e) => {
+    const files = e.target.files[0];
+    if (files) {
+      setImageFile(files);
+      setImageFileUrl(URL.createObjectURL(files));
+    }
+  };
+
+  const uploadImage = async () => {
+    const storageRef = ref(storage, new Date().getTime() + imageFile.name);
+    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+    
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setLoading(progress < 100); // Update loading state based on progress
+      },
+      (error) => {
+        console.error("Error uploading image:", error);
+        setLoading(false); // Set loading to false on error
+      },
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          setImageFileUrl(downloadURL);
+          setUploadCompleted(true);
+          setLoading(false); // Set loading to false on completion
+        } catch (error) {
+          console.error("Error getting download URL:", error);
+          setLoading(false); // Set loading to false on error
+        }
+      }
+    );
+  };
+  
+
+  useEffect(() => {
+    if (imageFile) {
+      uploadImage();
+    }
+  }, [imageFile]);
+
+  const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -18,53 +73,24 @@ const AddUserForm = () => {
       image: "",
     },
     validate: (values) => {
-      let errors = {};
-      if (values.name === "") {
-        errors.name = "Please enter the name";
-      }
-
-      if (values.name.length <= 3 || values.name.length > 15) {
-        errors.name = "Name should be between 3 to 15 characters";
-      }
-      if (!values.email) {
-        errors.email = "Required";
-      } else if (
-        !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
-      ) {
-        errors.email = "Invalid email address";
-      }
-
-      if (values.mobileNo === "") {
-        errors.mobileNo = "Please enter mobile number";
-      }
-
-      if (values.designation === "") {
-        errors.designation = "Please enter designation";
-      }
-      if (values.gender === "select") {
-        errors.gender = "Please choose gender";
-      }
-      if (values.course === "") {
-        errors.course = "Please choose course";
-      }
-      if (values.image === "") {
-        errors.image = "Please insert Image";
-      }
-
-      return errors;
+      // Validation rules here
     },
-
     onSubmit: async (values, formikbag) => {
       try {
-        setLoading(true); // Set loading to true when submitting
-        await axios.post("http://localhost:5000/user/api/users", values);
-        formikbag.resetForm();
-        alert("data created sucessfully");
-        navigate("/dashboard");
+        setLoading(true);
+        if (uploadCompleted) {
+          values.image = imageFileUrl;
+          await axios.post("http://localhost:5000/user/api/users", values);
+          formikbag.resetForm();
+          alert("Data created successfully");
+          navigate("/dashboard");
+        } else {
+          console.error("Image upload not completed yet");
+        }
       } catch (error) {
-        console.log(error);
+        console.error("Error submitting form:", error);
       } finally {
-        setLoading(false); // Set loading to false after submission
+        setLoading(false);
       }
     },
   });
@@ -74,9 +100,9 @@ const AddUserForm = () => {
       <Header />
       <div className="container margin-top">
         <h3 className="text-center mt-5">Add User</h3>
-        <div className="  shadow-lg p-4 rounded">
+        <div className="shadow-lg p-4 rounded">
           <form onSubmit={formik.handleSubmit}>
-            <div className="row">
+          <div className="row">
               <div className="col-lg-4">
                 <label htmlFor="name">Name</label>
                 <input
@@ -236,10 +262,10 @@ const AddUserForm = () => {
                 <input
                   type="file"
                   className="form-control"
-                  name="image"
-                  onChange={formik.handleChange} // Use onChange instead of value for file inputs
+                  name="image"a
+                  accept="image/"
+                  onChange={HandleImage}
                 />
-                <span className="text-danger">{formik.errors.image}</span>
               </div>
               <div className="col-lg-12 mt-5">
                 <button type="submit" className="btn btn-primary">

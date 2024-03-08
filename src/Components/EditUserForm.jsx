@@ -3,11 +3,14 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import Header from "./Header";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "../config/firebase";
 
 const EditUserForm = () => {
   const { id } = useParams(); // Get the user id from the URL
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +50,7 @@ const EditUserForm = () => {
       designation: "",
       gender: "",
       course: [],
-      image: "",
+      image: null, // Initialize image as null
     },
     validate: (values) => {
       let errors = {};
@@ -56,13 +59,53 @@ const EditUserForm = () => {
     },
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        await axios.put(`http://localhost:5000/user/api/users/${id}`, values);
-        alert("User data updated successfully");
-        navigate("/dashboard");
+        setLoading(true);
+        if (values.image instanceof File) {
+          const storageRef = ref(
+            storage,
+            new Date().getTime() + values.image.name
+          );
+          const uploadTask = uploadBytesResumable(storageRef, values.image);
+
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              // Handle progress if needed
+            },
+            (error) => {
+              console.error("Error uploading image:", error);
+              setLoading(false); // Set loading to false on error
+            },
+            async () => {
+              try {
+                const downloadURL = await getDownloadURL(
+                  uploadTask.snapshot.ref
+                );
+                values.image = downloadURL; // Update image URL in values
+                await axios.put(
+                  `http://localhost:5000/user/api/users/${id}`,
+                  values
+                );
+                alert("User data updated successfully");
+                navigate("/dashboard");
+              } catch (error) {
+                console.error("Error updating user data:", error);
+              } finally {
+                setLoading(false); // Set loading to false on completion
+              }
+            }
+          );
+        } else {
+          // If image is not changed, directly submit the form data
+          await axios.put(`http://localhost:5000/user/api/users/${id}`, values);
+          alert("User data updated successfully");
+          navigate("/dashboard");
+        }
       } catch (error) {
         console.error("Error updating user data:", error);
       } finally {
         setSubmitting(false);
+        setLoading(false); // Set loading to false if an error occurs
       }
     },
   });
@@ -73,10 +116,10 @@ const EditUserForm = () => {
 
   return (
     <>
-    <Header/>
+      <Header />
       <h1 className="margin-top text-center">Edit User</h1>
       <form onSubmit={formik.handleSubmit}>
-        <div className="row">
+      <div className="row">
           <div className="col-lg-4">
             <label htmlFor="name">Name</label>
             <input
@@ -238,11 +281,11 @@ const EditUserForm = () => {
             />
             <span className="text-danger">{formik.errors.image}</span>
           </div>
-          <div className="col-lg-12 mt-5">
-            <button type="submit" className="btn btn-primary">
-              Update
-            </button>
-          </div>
+        </div>
+        <div className="col-lg-12 mt-5">
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? "Loading..." : "Update"}
+          </button>
         </div>
       </form>
     </>

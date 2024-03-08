@@ -80,7 +80,7 @@ const AddUserForm = () => {
         setLoading(true);
         if (uploadCompleted) {
           values.image = imageFileUrl;
-          await axios.post("http://localhost:5000/user/api/users", values);
+          await axios.post("https://server-dealsdry.onrender.com/user/api/users", values);
           formikbag.resetForm();
           alert("Data created successfully");
           navigate("/dashboard");

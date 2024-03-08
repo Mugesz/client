@@ -9,7 +9,7 @@ const ViewAllDatas = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/user/api/getAll");
+      const response = await axios.get("https://server-dealsdry.onrender.com/user/api/getAll");
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -21,7 +21,7 @@ const ViewAllDatas = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/user/api/users/${id}`);
+      await axios.delete(`https://server-dealsdry.onrender.com/user/api/users/${id}`);
       alert("datat deleted sucessfully");
       fetchData();
     } catch (error) {

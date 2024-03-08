@@ -83,7 +83,7 @@ const EditUserForm = () => {
                 );
                 values.image = downloadURL; // Update image URL in values
                 await axios.put(
-                  `http://localhost:5000/user/api/users/${id}`,
+                  `https://server-dealsdry.onrender.com/user/api/users/${id}`,
                   values
                 );
                 alert("User data updated successfully");
@@ -97,7 +97,7 @@ const EditUserForm = () => {
           );
         } else {
           // If image is not changed, directly submit the form data
-          await axios.put(`http://localhost:5000/user/api/users/${id}`, values);
+          await axios.put(`https://server-dealsdry.onrender.com/user/api/users/${id}`, values);
           alert("User data updated successfully");
           navigate("/dashboard");
         }

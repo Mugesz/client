@@ -39,7 +39,7 @@ const Signup = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/register", { email, password });
+      await axios.post("https://server-dealsdry.onrender.com/register", { email, password });
       alert("Success! User registered successfully.");
       navigate("/");
     } catch (error) {

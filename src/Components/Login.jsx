@@ -50,6 +50,7 @@ const Login = () => {
       if (response.status === 200) {
         const { token } = response.data;
         localStorage.setItem("token", token);
+        localStorage.setItem("mail",email)
         navigate("/dashboard");
       } else {
         setError("Login failed. Please try again.");

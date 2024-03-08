@@ -8,27 +8,33 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [loading, setLoading] = useState(false); // Introduce loading state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setEmailError("");
     setPasswordError("");
+    setLoading(true); // Set loading to true when the form is submitted
 
     // Email validation
     if (!email) {
       setEmailError("Email is required");
+      setLoading(false); // Reset loading state
       return;
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       setEmailError("Invalid email address");
+      setLoading(false); // Reset loading state
       return;
     }
 
     // Password validation
     if (!password) {
       setPasswordError("Password is required");
+      setLoading(false); // Reset loading state
       return;
     } else if (password.length < 6) {
       setPasswordError("Password must be at least 6 characters long");
+      setLoading(false); // Reset loading state
       return;
     }
 
@@ -39,6 +45,8 @@ const Signup = () => {
     } catch (error) {
       console.error("Signup failed", error);
       alert("Signup failed. Please try again.");
+    } finally {
+      setLoading(false); // Reset loading state after signup attempt
     }
   };
 
@@ -72,8 +80,8 @@ const Signup = () => {
                     />
                     <div className="text-danger">{passwordError}</div>
                   </div>
-                  <button type="submit" className="btn btn-primary">
-                    Signup
+                  <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? "Signing up..." : "Signup"} {/* Display loading text if loading */}
                   </button>
                 </form>
               </div>

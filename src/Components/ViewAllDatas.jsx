@@ -41,7 +41,7 @@ const ViewAllDatas = () => {
           to="/adduser"
           className="d-none mt-2 d-sm-inline-block btn btn-sm btn-primary shadow-sm"
         >
-          <i className="fas fa-download fa-sm text-white-50"></i> Create Order
+          <i className="fas fa-download fa-sm text-white-50"></i> Create User
         </Link>
       </div>
       <div className="row ml-5">

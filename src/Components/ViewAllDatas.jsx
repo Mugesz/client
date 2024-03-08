@@ -7,16 +7,27 @@ const ViewAllDatas = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
 
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/user/api/getAll");
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/user/api/getAll")
-      .then((response) => {
-        setUsers(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+    fetchData();
   }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/user/api/users/${id}`);
+      alert("datat deleted sucessfully");
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
 
   const filteredUsers = users.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
@@ -103,11 +114,11 @@ const ViewAllDatas = () => {
                               <div className="text-center">
                                 <button
                                   className="btn btn-sm btn-danger"
-                                  // onClick={() => handleDelete(item.id)}
+                                  onClick={() => handleDelete(item._id)}
                                 >
                                   delete
                                 </button>
-                                <Link to={`/edit-order/${item.id}`}>
+                                <Link to={`/edit-user/${item._id}`}>
                                   <button className="btn btn-sm btn-warning ml-2">
                                     edit
                                   </button>

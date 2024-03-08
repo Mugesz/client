@@ -1,18 +1,17 @@
 import React from "react";
-
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
 const Header = () => {
-    const navigate = useNavigate()
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/');
-      };
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
   return (
-    <nav className="navbar navbar-expand-lg nav-bg fixed-top text-light">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
       <div className="container-fluid d-flex align-items-center justify-content-between">
         <div className="d-flex">
-          <h1>logo</h1>
+          <h1 className="navbar-brand">logo</h1>
         </div>
         <button
           className="navbar-toggler"
@@ -27,7 +26,7 @@ const Header = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav mx-auto mb-2 mb-lg-0">
-            <li className="nav-item ">
+            <li className="nav-item">
               <NavLink
                 className="nav-link text-light"
                 to="/dashboard"
@@ -49,7 +48,7 @@ const Header = () => {
           </ul>
         </div>
         <button className="btn btn-danger" onClick={handleLogout}>
-            logout
+          Logout
         </button>
       </div>
     </nav>

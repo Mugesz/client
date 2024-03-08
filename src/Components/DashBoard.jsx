@@ -6,10 +6,6 @@ import Header from "./Header";
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
 
   return (
     <>

@@ -9,38 +9,9 @@ import { storage } from "../config/firebase";
 const EditUserForm = () => {
   const { id } = useParams(); // Get the user id from the URL
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/user/api/users/${id}`
-        );
-        setUser(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
 
-    fetchData();
-  }, [id]);
-
-  useEffect(() => {
-    if (user) {
-      // Initialize formik object after user data is fetched
-      formik.setValues({
-        name: user.name,
-        email: user.email,
-        mobileNo: user.mobileNo,
-        designation: user.designation,
-        gender: user.gender,
-        course: user.course,
-        image: user.image,
-      });
-    }
-  }, [user]);
 
   const formik = useFormik({
     initialValues: {
@@ -50,69 +21,40 @@ const EditUserForm = () => {
       designation: "",
       gender: "",
       course: [],
-      image: null, // Initialize image as null
-    },
-    validate: (values) => {
-      let errors = {};
-      // Add validation rules as needed
-      return errors;
+      image: null,
     },
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        setLoading(true);
-        if (values.image instanceof File) {
-          const storageRef = ref(
-            storage,
-            new Date().getTime() + values.image.name
-          );
-          const uploadTask = uploadBytesResumable(storageRef, values.image);
-
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              // Handle progress if needed
-            },
-            (error) => {
-              console.error("Error uploading image:", error);
-              setLoading(false); // Set loading to false on error
-            },
-            async () => {
-              try {
-                const downloadURL = await getDownloadURL(
-                  uploadTask.snapshot.ref
-                );
-                values.image = downloadURL; // Update image URL in values
-                await axios.put(
-                  `https://server-dealsdry.onrender.com/user/api/users/${id}`,
-                  values
-                );
-                alert("User data updated successfully");
-                navigate("/dashboard");
-              } catch (error) {
-                console.error("Error updating user data:", error);
-              } finally {
-                setLoading(false); // Set loading to false on completion
-              }
-            }
-          );
-        } else {
-          // If image is not changed, directly submit the form data
-          await axios.put(`https://server-dealsdry.onrender.com/user/api/users/${id}`, values);
-          alert("User data updated successfully");
-          navigate("/dashboard");
-        }
+        setLoading(true); // Set loading to true when form submission starts
+        await axios.put(
+          `https://server-dealsdry.onrender.com/user/api/users/${id}`,
+          values
+        );
+        alert("User data updated successfully");
+        navigate("/dashboard");
       } catch (error) {
         console.error("Error updating user data:", error);
       } finally {
+        setLoading(false); // Set loading back to false when form submission is complete
         setSubmitting(false);
-        setLoading(false); // Set loading to false if an error occurs
       }
     },
   });
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `https://server-dealsdry.onrender.com/user/api/users/${id}`
+        );
+        formik?.setValues(response.data); // Use optional chaining here
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
-  if (!user) {
-    return <p>Loading...</p>;
-  }
 
   return (
     <>
@@ -282,11 +224,9 @@ const EditUserForm = () => {
             <span className="text-danger">{formik.errors.image}</span>
           </div>
         </div>
-        <div className="col-lg-12 mt-5">
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? "Loading..." : "Update"}
-          </button>
-        </div>
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? "Loading..." : "Update"}
+        </button>
       </form>
     </>
   );
